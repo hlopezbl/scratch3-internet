@@ -10,7 +10,7 @@ const defaultId = 'default';
 let theLocale = null;
 
 class gasoJSON {
-    constructor (runtime) {
+    constructor(runtime) {
         theLocale = this._setLocale();
         this.runtime = runtime;
         // communication related
@@ -27,19 +27,19 @@ class gasoJSON {
         this.lineBuffer = '';
 
         this.data = {};
-	this.txt = {};
-	this.txtlenght = {};
-	this.googlecolumn = {};
+        this.txt = {};
+        this.txtlenght = {};
+        this.googlecolumn = {};
         this.emptyObj = {
             VALUE: {}
         };
     }
 
-    onclose () {
+    onclose() {
         this.session = null;
     }
 
-    write (data, parser = null) {
+    write(data, parser = null) {
         if (this.session) {
             return new Promise(resolve => {
                 if (parser) {
@@ -53,15 +53,15 @@ class gasoJSON {
         }
     }
 
-    onmessage (data) {
+    onmessage(data) {
         const dataStr = this.decoder.decode(data);
         this.lineBuffer += dataStr;
-        if (this.lineBuffer.indexOf('\n') !== -1){
+        if (this.lineBuffer.indexOf('\n') !== -1) {
             const lines = this.lineBuffer.split('\n');
             this.lineBuffer = lines.pop();
             for (const l of lines) {
                 if (this.reporter) {
-                    const {parser, resolve} = this.reporter;
+                    const { parser, resolve } = this.reporter;
                     resolve(parser(l));
                 }
             }
@@ -69,26 +69,26 @@ class gasoJSON {
     }
 
 
-    scan () {
+    scan() {
         this.comm.getDeviceList().then(result => {
             this.runtime.emit(this.runtime.constructor.PERIPHERAL_LIST_UPDATE, result);
         });
     }
 
-    _setLocale () {
+    _setLocale() {
         let nowLocale = '';
         switch (formatMessage.setup().locale) {
-        case 'zh-tw':
-            nowLocale = 'zh-tw';
-            break;
-        default:
-            nowLocale = 'en';
-            break;
+            case 'zh-tw':
+                nowLocale = 'zh-tw';
+                break;
+            default:
+                nowLocale = 'en';
+                break;
         }
         return nowLocale;
     }
 
-    getInfo () {
+    getInfo() {
         theLocale = this._setLocale();
 
         return {
@@ -103,9 +103,13 @@ class gasoJSON {
                     opcode: 'fetchJSON',
                     blockType: BlockType.COMMAND,
                     arguments: {
-                        url: {
+                        topic: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'https://'
+                            defaultValue: 'feeds/temp'
+                        },
+                        value: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '222'
                         }
                     },
                     text: msg.fetchJSON[theLocale]
@@ -117,36 +121,36 @@ class gasoJSON {
                     arguments: {},
                     text: msg.onJSONReceived[theLocale]
                 },
-		{
-                    opcode: 'readEntryFromJSON',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        variable: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'data'
-                        },
-                        n: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: '1'
-                        }
-                    },
-                    text: msg.readEntryFromJSON[theLocale]
-                },
-                {
-                    opcode: 'readAttrFromJSON',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        variable: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'data'
-                        },
-                        attr: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'attr'
-                        }
-                    },
-                    text: msg.readAttrFromJSON[theLocale]
-                },
+                // {
+                //     opcode: 'readEntryFromJSON',
+                //     blockType: BlockType.REPORTER,
+                //     arguments: {
+                //         variable: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'data'
+                //         },
+                //         n: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: '1'
+                //         }
+                //     },
+                //     text: msg.readEntryFromJSON[theLocale]
+                // },
+                // {
+                //     opcode: 'readAttrFromJSON',
+                //     blockType: BlockType.REPORTER,
+                //     arguments: {
+                //         variable: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'data'
+                //         },
+                //         attr: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'attr'
+                //         }
+                //     },
+                //     text: msg.readAttrFromJSON[theLocale]
+                // },
                 {
                     opcode: 'readFromJSON',
                     blockType: BlockType.REPORTER,
@@ -157,125 +161,129 @@ class gasoJSON {
                         }
                     },
                     text: msg.readFromJSON[theLocale]
-                },
-		{
-                    opcode: 'googleJSON',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        url: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'https://docs.google.com/spreadsheets/d/KEY_ID/edit?usp=sharing'
-                        }
-                    },
-                    text: msg.googleJSON[theLocale]
-                },
-		{
-                    opcode: 'googlecolumnTEXT',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-			variable: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'data'
-                        },
-                        n: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: '1'
-                        },
-                        column: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'title'
-                        }
-                    },
-                    text: msg.googlecolumnTEXT[theLocale]
-                },
-		{
-                    opcode: 'writeGoogleCalc',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        url: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'https://script.google.com/macros/s/「key」/exec'
-                        },
-			column1: {
-			    type: ArgumentType.STRING,
-                            defaultValue: ' '
-			},
-			column2: {
-			    type: ArgumentType.STRING,
-                            defaultValue: ' '
-			},
-			column3: {
-			    type: ArgumentType.STRING,
-                            defaultValue: ' '
-			}
-                    },
-                    text: msg.writeGoogleCalc[theLocale]
-                },
-		{
-                    opcode: 'readtextFILE',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        url: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'http://0.0.0.0:8601/FILE.txt'
-                        }
-		    },
-		    text:msg.readtextFILE[theLocale]
-                },
-                {
-                    opcode: 'readFromTEXT',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        id: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'id'
-                        }
-                    },
-                    text: msg.readFromTEXT[theLocale]
-                },
-                {
-                    opcode: 'textLENGHT',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        id: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'id'
-                        }
-                    },
-                    text: msg.textLENGHT[theLocale]
-                },
-		{
-                    opcode: 'readtxtDATA',
-                    blockType: BlockType.REPORTER,
-                    arguments: {
-                        variable: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'data'
-                        },
-                        n: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: '1'
-                        }
-                    },
-                    text: msg.readtxtDATA[theLocale]
-                },
-                {
-                    opcode: 'openURL',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        url: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'https://'
-                        }
-                    },
-                    text: msg.openURL[theLocale]
                 }
+                // ,
+                // {
+                //     opcode: 'googleJSON',
+                //     blockType: BlockType.COMMAND,
+                //     arguments: {
+                //         url: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'https://docs.google.com/spreadsheets/d/KEY_ID/edit?usp=sharing'
+                //         }
+                //     },
+                //     text: msg.googleJSON[theLocale]
+                // },
+                // {
+                //     opcode: 'googlecolumnTEXT',
+                //     blockType: BlockType.REPORTER,
+                //     arguments: {
+                //         variable: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'data'
+                //         },
+                //         n: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: '1'
+                //         },
+                //         column: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'title'
+                //         }
+                //     },
+                //     text: msg.googlecolumnTEXT[theLocale]
+                // },
+                // {
+                //     opcode: 'writeGoogleCalc',
+                //     blockType: BlockType.COMMAND,
+                //     arguments: {
+                //         url: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'https://script.google.com/macros/s/「key」/exec'
+                //         },
+                //         column1: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: ' '
+                //         },
+                //         column2: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: ' '
+                //         },
+                //         column3: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: ' '
+                //         }
+                //     },
+                //     text: msg.writeGoogleCalc[theLocale]
+                // },
+                // {
+                //     opcode: 'readtextFILE',
+                //     blockType: BlockType.COMMAND,
+                //     arguments: {
+                //         url: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'http://0.0.0.0:8601/FILE.txt'
+                //         }
+                //     },
+                //     text: msg.readtextFILE[theLocale]
+                // },
+                // {
+                //     opcode: 'readFromTEXT',
+                //     blockType: BlockType.REPORTER,
+                //     arguments: {
+                //         id: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'id'
+                //         }
+                //     },
+                //     text: msg.readFromTEXT[theLocale]
+                // },
+                // {
+                //     opcode: 'textLENGHT',
+                //     blockType: BlockType.REPORTER,
+                //     arguments: {
+                //         id: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'id'
+                //         }
+                //     },
+                //     text: msg.textLENGHT[theLocale]
+                // },
+                // {
+                //     opcode: 'readtxtDATA',
+                //     blockType: BlockType.REPORTER,
+                //     arguments: {
+                //         variable: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'data'
+                //         },
+                //         n: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: '1'
+                //         }
+                //     },
+                //     text: msg.readtxtDATA[theLocale]
+                // },
+                // {
+                //     opcode: 'openURL',
+                //     blockType: BlockType.COMMAND,
+                //     arguments: {
+                //         url: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'https://'
+                //         }
+                //     },
+                //     text: msg.openURL[theLocale]
+                // }
             ]
         };
     }
 
-    fetchJSON (args) {
-        const url = args.url;
+    fetchJSON(args) {
+        console.log('CAMILA')
+        const url = 'https://blmqtt.herokuapp.com/?topic=' + args.topic + '&value=' + args.value;
+        console.log(url)
+        // const url = args.url;
         return fetch(url).then(res => {
             if (res.ok) {
                 res.json().then(json => {
@@ -288,10 +296,10 @@ class gasoJSON {
         });
     }
 
-    googleJSON (args) {
-	const urlsplit = args.url.split("/");
-	const aurl ='https://spreadsheets.google.com/feeds/list/'+urlsplit[5]+'/od6/public/values?alt=json';
-	const url = new URL(aurl);
+    googleJSON(args) {
+        const urlsplit = args.url.split("/");
+        const aurl = 'https://spreadsheets.google.com/feeds/list/' + urlsplit[5] + '/od6/public/values?alt=json';
+        const url = new URL(aurl);
         return fetch(url).then(res => {
             if (res.ok) {
                 res.json().then(json => {
@@ -304,26 +312,26 @@ class gasoJSON {
         });
     }
 
-    isDataFetched () {
+    isDataFetched() {
         return this.data.fetched;
     }
 
-    isTxtFetched () {
+    isTxtFetched() {
         return this.txt.fetched;
     }
 
-    istextLENGHTFetched () {
+    istextLENGHTFetched() {
         return this.txtlenght.fetched;
     }
 
-    onJSONReceived (){
+    onJSONReceived() {
         if (this.isDataFetched()) {
             console.log('got data');
             return true;
         }
     }
 
-    readFromJSON () {
+    readFromJSON() {
         if (this.isDataFetched()) {
             console.log('return ', this.data.data);
             return this.data.data;
@@ -332,103 +340,103 @@ class gasoJSON {
     }
 
 
-    readEntryFromJSON (args) {
-        const variable = args.variable || this.emptyObj;
-        const n = args.n;
-        try {
-	    const parsed = JSON.parse(variable);
-            const data = parsed[n - 1];
-            return typeof data === 'string' ? data : JSON.stringify(data);
-        } catch (err) {
-            return `Error: ${err}`;
-        }
-    }
+    // readEntryFromJSON (args) {
+    //     const variable = args.variable || this.emptyObj;
+    //     const n = args.n;
+    //     try {
+    //     const parsed = JSON.parse(variable);
+    //         const data = parsed[n - 1];
+    //         return typeof data === 'string' ? data : JSON.stringify(data);
+    //     } catch (err) {
+    //         return `Error: ${err}`;
+    //     }
+    // }
 
-    readAttrFromJSON (args) {
-        const variable = args.variable || this.emptyObj;
-        const attr = args.attr;
-        try {
-            const parsed = JSON.parse(variable);
-            const data = parsed[attr];
-            return typeof data === 'string' ? data : JSON.stringify(data);
-        } catch (err) {
-            return `Error: ${err}`;
-        }
-    }
+    // readAttrFromJSON (args) {
+    //     const variable = args.variable || this.emptyObj;
+    //     const attr = args.attr;
+    //     try {
+    //         const parsed = JSON.parse(variable);
+    //         const data = parsed[attr];
+    //         return typeof data === 'string' ? data : JSON.stringify(data);
+    //     } catch (err) {
+    //         return `Error: ${err}`;
+    //     }
+    // }
 
-    readtextFILE (args) {
-	const file = args.url;
-	this.txt.data = fetch(file,{method:'get'}).then(response => response.text());
-	this.txt.fetched = true;
-    }
+    // readtextFILE (args) {
+    // const file = args.url;
+    // this.txt.data = fetch(file,{method:'get'}).then(response => response.text());
+    // this.txt.fetched = true;
+    // }
 
-    readtxtDATA (args) {
-        const variable = args.variable || this.emptyObj;
-        const n = args.n;
-        try {
-	    const parsed = variable.split('\n');
-	    this.txtlenght.fetched = true;
-	    this.txtlenght.data = parsed.length-1;
-            const data = parsed[n - 1];
-            return typeof data === 'string' ? data : txt.stringify(data);
-        } catch (err) {
-            return `Error: ${err}`;
-        }
-    }
+    // readtxtDATA (args) {
+    //     const variable = args.variable || this.emptyObj;
+    //     const n = args.n;
+    //     try {
+    //     const parsed = variable.split('\n');
+    //     this.txtlenght.fetched = true;
+    //     this.txtlenght.data = parsed.length-1;
+    //         const data = parsed[n - 1];
+    //         return typeof data === 'string' ? data : txt.stringify(data);
+    //     } catch (err) {
+    //         return `Error: ${err}`;
+    //     }
+    // }
 
 
-    readFromTEXT () {
-        if (this.isTxtFetched()) {
-            console.log('return ', this.txt.data);
-            return this.txt.data;
-        }
-        return msg.readFromTEXTErr[theLocale];
-    }
+    // readFromTEXT () {
+    //     if (this.isTxtFetched()) {
+    //         console.log('return ', this.txt.data);
+    //         return this.txt.data;
+    //     }
+    //     return msg.readFromTEXTErr[theLocale];
+    // }
 
-    googlecolumnTEXT(args){
-	const variable = args.variable || this.emptyObj;
-        const n = args.n;
-	const column = "gsx$" + args.column;
-        try {
-	    const parsed = JSON.parse(variable);
-            var data = parsed[n - 1];
-            data = JSON.stringify(data);
-            const a_parsed = JSON.parse(data);
-            var a_data = a_parsed[column];
-	    a_data = JSON.stringify(a_data);
-	    const t_parsed = JSON.parse(a_data);
-	    var t_data = t_parsed["$t"];
-            return typeof t_data === 'string' ? t_data : JSON.stringify(t_data);
-         }catch (err){
-	    return `Error: ${err}`;	
-	}
-    }
+    // googlecolumnTEXT(args){
+    // const variable = args.variable || this.emptyObj;
+    //     const n = args.n;
+    // const column = "gsx$" + args.column;
+    //     try {
+    //     const parsed = JSON.parse(variable);
+    //         var data = parsed[n - 1];
+    //         data = JSON.stringify(data);
+    //         const a_parsed = JSON.parse(data);
+    //         var a_data = a_parsed[column];
+    //     a_data = JSON.stringify(a_data);
+    //     const t_parsed = JSON.parse(a_data);
+    //     var t_data = t_parsed["$t"];
+    //         return typeof t_data === 'string' ? t_data : JSON.stringify(t_data);
+    //      }catch (err){
+    //     return `Error: ${err}`;	
+    // }
+    // }
 
-    textLENGHT () {
-        if (this.istextLENGHTFetched()) {
-            console.log('return ', this.txtlenght.data);
-            return this.txtlenght.data;
-        }
-        return msg.textLENGHTErr[theLocale];
-    }
+    // textLENGHT () {
+    //     if (this.istextLENGHTFetched()) {
+    //         console.log('return ', this.txtlenght.data);
+    //         return this.txtlenght.data;
+    //     }
+    //     return msg.textLENGHTErr[theLocale];
+    // }
 
-    writeGoogleCalc (args) {
-	alert("test");
-	const column1 = args.column1 || defaultValue;
-	const column2 = args.column2 || defaultValue;
-	const column3 = args.column3 || defaultValue;
-	const url = args.url;
-	var gurl = url + "?c1=" + column1 + "&c2=" + column2 + "&c3=" + column3;
-	return fetch(gurl).then(res => {
-	    if (res.ok) {
-	    }
-	});
-    }
+    // writeGoogleCalc (args) {
+    // alert("test");
+    // const column1 = args.column1 || defaultValue;
+    // const column2 = args.column2 || defaultValue;
+    // const column3 = args.column3 || defaultValue;
+    // const url = args.url;
+    // var gurl = url + "?c1=" + column1 + "&c2=" + column2 + "&c3=" + column3;
+    // return fetch(gurl).then(res => {
+    //     if (res.ok) {
+    //     }
+    // });
+    // }
 
-    openURL (args) {
-	const url = args.url;
-	var openurl = window.open(url);
-    }
+    // openURL (args) {
+    // const url = args.url;
+    // var openurl = window.open(url);
+    // }
 
 }
 

@@ -4,7 +4,8 @@ export const name = {
 };
 
 export const fetchJSON = {
-    'en': 'Get JSON data from [url]',
+    'en': 'Send JSON data to [topic] value [value]',
+    'fr': 'Send JSON data to [topic] value [value]',
     'zh-tw': '從 [url] 取得JSON格式資料'
 };
 
