@@ -2,7 +2,7 @@ const json = {
     name: 'JSON',
     extensionId: 'gasoJSON',
     collaborator: 'gasolin',
-    iconURL: gdxforIconURL,
+    //iconURL: gdxforIconURL,
     insetIconURL: gdxforInsetIconURL,
     description: (
         <FormattedMessage
@@ -24,7 +24,7 @@ const lass = {
     name: 'LASS',
     extensionId: 'lass',
     collaborator: 'gasolin',
-    iconURL: gdxforIconURL,
+    //iconURL: gdxforIconURL,
     insetIconURL: gdxforInsetIconURL,
     description: (
         <FormattedMessage
@@ -46,7 +46,7 @@ const ifttt = {
     name: 'IFTTT',
     extensionId: 'ifttt',
     collaborator: 'gasolin',
-    iconURL: gdxforIconURL,
+    //iconURL: gdxforIconURL,
     insetIconURL: gdxforInsetIconURL,
     description: (
         <FormattedMessage
@@ -68,7 +68,7 @@ const thingspeak = {
     name: 'ThingSpeak',
     extensionId: 'thingspeak',
     collaborator: 'gasolin',
-    iconURL: gdxforIconURL,
+    //iconURL: gdxforIconURL,
     insetIconURL: gdxforInsetIconURL,
     description: (
         <FormattedMessage
